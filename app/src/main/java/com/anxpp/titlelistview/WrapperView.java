@@ -30,15 +30,8 @@ public class WrapperView extends ViewGroup {
 	public boolean hasHeader() {
 		return mHeader != null;
 	}
-	
-	public View getItem() {
-		return mItem;
-	}
-//	public View getHeader() {
-//		return mHeader;
-//	}
 
-	void update(View item, View header, Drawable divider, int dividerHeight) {
+	void update(View item, View header) {
 		
 		//every wrapperview must have a list item
 		if (item == null) {
@@ -68,12 +61,6 @@ public class WrapperView extends ViewGroup {
 			if (header != null) {
 				addView(header);
 			}
-		}
-
-		if (this.mDivider != divider) {
-			this.mDivider = divider;
-			this.mDividerHeight = dividerHeight;
-			invalidate();
 		}
 	}
 

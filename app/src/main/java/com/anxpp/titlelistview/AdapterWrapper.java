@@ -2,39 +2,20 @@ package com.anxpp.titlelistview;
 
 import android.content.Context;
 import android.database.DataSetObserver;
-import android.graphics.drawable.Drawable;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.Checkable;
-import android.widget.ListAdapter;
 
 import java.util.LinkedList;
 import java.util.List;
 
 /**
- * A {@link ListAdapter} which wraps a {@link StickyListHeadersAdapter} and
- * automatically handles wrapping the result of
- * {@link StickyListHeadersAdapter#getView(int, View, ViewGroup)}
- * and
- * {@link StickyListHeadersAdapter#getHeaderView(int, View, ViewGroup)}
- * appropriately.
- *
- * @author Jake Wharton (jakewharton@gmail.com)
  */
 class AdapterWrapper extends BaseAdapter implements StickyListHeadersAdapter {
-
-	interface OnHeaderClickListener {
-		void onHeaderClick(View header, int itemPosition, long headerId);
-	}
 
 	StickyListHeadersAdapter stickyListHeadersAdapter;
 	private final List<View> mHeaderCache = new LinkedList<>();
 	private final Context mContext;
-	private Drawable mDivider;
-	private int mDividerHeight;
-	private OnHeaderClickListener mOnHeaderClickListener;
 
 	AdapterWrapper(Context context,
 				   StickyListHeadersAdapter delegate) {
@@ -54,12 +35,6 @@ class AdapterWrapper extends BaseAdapter implements StickyListHeadersAdapter {
 			}
 		};
 		delegate.registerDataSetObserver(mDataSetObserver);
-	}
-
-	void setDivider(Drawable divider, int dividerHeight) {
-		this.mDivider = divider;
-		this.mDividerHeight = dividerHeight;
-		notifyDataSetChanged();
 	}
 
 	@Override
@@ -129,18 +104,6 @@ class AdapterWrapper extends BaseAdapter implements StickyListHeadersAdapter {
 		if (header == null) {
 			throw new NullPointerException("Header view must not be null.");
 		}
-		//if the header isn't clickable, the listselector will be drawn on top of the header
-		header.setClickable(true);
-		header.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				if(mOnHeaderClickListener != null){
-					long headerId = stickyListHeadersAdapter.getHeaderId(position);
-					mOnHeaderClickListener.onHeaderClick(v, position, headerId);
-				}
-			}
-		});
 		return header;
 	}
 
@@ -160,25 +123,20 @@ class AdapterWrapper extends BaseAdapter implements StickyListHeadersAdapter {
 
 	@Override
 	public WrapperView getView(int position, View convertView, ViewGroup parent) {
-		WrapperView wv = (convertView == null) ? new WrapperView(mContext) : (WrapperView) convertView;
-		View item = stickyListHeadersAdapter.getView(position, wv.mItem, parent);
+		WrapperView wrapperView = (convertView == null) ? new WrapperView(mContext) : (WrapperView) convertView;
+		View item = stickyListHeadersAdapter.getView(position, wrapperView.mItem, parent);
 		View header = null;
 		if (previousPositionHasSameHeader(position)) {
-			recycleHeaderIfExists(wv);
+			recycleHeaderIfExists(wrapperView);
 		} else {
-			header = configureHeader(wv, position);
+			header = configureHeader(wrapperView, position);
 		}
-		wv.update(item, header, mDivider, mDividerHeight);
-		return wv;
+		wrapperView.update(item, header);
+		return wrapperView;
 	}
-
-	public void setOnHeaderClickListener(OnHeaderClickListener onHeaderClickListener){
-		this.mOnHeaderClickListener = onHeaderClickListener;
-	}
-
 	@Override
-	public boolean equals(Object o) {
-		return stickyListHeadersAdapter.equals(o);
+	public boolean equals(Object object) {
+		return stickyListHeadersAdapter.equals(object);
 	}
 
 	@Override
