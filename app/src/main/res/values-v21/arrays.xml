@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="countries">
+
+        <item>Afghanistan</item>
+        <item>Albania</item>
+        <item>Argentina</item>
+        <item>Armenia</item>
+        <item>Australia</item>
+        <item>Austria</item>
+        <item>Azerbaijan</item>
+
+        <item>Bahamas</item>
+
+        <item>Cambodia</item>
+        <item>Cameroon</item>
+        <item>Canada</item>
+        <item>Cape Verde</item>
+        <item>Central African Republic</item>
+        <item>Chad</item>
+        <item>Chile</item>
+        <item>Cyprus</item>
+        <item>Czech Republic</item>
+
+        <item>Denmark</item>
+        <item>Djibouti</item>
+        <item>Dominica</item>
+        <item>Dominican Republic</item>
+
+        <item>Ecuador</item>
+        <item>Egypt</item>
+        <item>Ethiopia</item>
+
+        <item>Fiji</item>
+        <item>Finland</item>
+        <item>France</item>
+
+        <item>Gabon</item>
+        <item>Gambia, The</item>
+
+        <item>Jamaica</item>
+        <item>Japan</item>
+        <item>Jordan</item>
+
+        <item>Kazakhstan</item>
+        <item>Kenya</item>
+        <item>Kyrgyzstan</item>
+
+        <item>Laos</item>
+        <item>Liechtenstein</item>
+        <item>Lithuania</item>
+        <item>Luxembourg</item>
+
+        <item>Macau</item>
+        <item>Macedonia</item>
+        <item>Madagascar</item>
+        <item>Malawi</item>
+        <item>Malaysia</item>
+        <item>Montenegro</item>
+        <item>Morocco</item>
+        <item>Mozambique</item>
+
+        <item>Namibia</item>
+        <item>Nauru</item>
+        <item>Norway</item>
+
+        <item>Oman</item>
+
+        <item>Pakistan</item>
+
+        <item>Vanuatu</item>
+        <item>Venezuela</item>
+        <item>Vietnam</item>
+
+        <item>Yemen</item>
+
+        <item>Zambia</item>
+        <item>Zimbabwe</item>
+    </string-array>
+
+</resources>

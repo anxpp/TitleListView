@@ -4,10 +4,11 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.os.Build;
+import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.ListView;
-
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +36,19 @@ class WrapperViewList extends ListView {
 	private boolean mBlockLayoutChildren = false;
 
 	public WrapperViewList(Context context) {
-		super(context);
+		this(context,null);
+		init();
+	}
+	public WrapperViewList(Context context, AttributeSet attrs) {
+		this(context, attrs, R.attr.stickyListHeadersListViewStyle);
+		init();
+	}
+	public WrapperViewList(Context context, AttributeSet attrs, int defStyle) {
+		super(context, attrs, defStyle);
+		init();
+	}
+
+	private void init(){
 		// 用反射来改变列表的大小/位置
 		// selector so it does not come under/over the header
 		try {
@@ -53,9 +66,10 @@ class WrapperViewList extends ListView {
 				mSelectorPositionField.setAccessible(true);
 			}
 		} catch (NoSuchFieldException | IllegalArgumentException | IllegalAccessException e) {
-			e.printStackTrace();
+			Log.e("list",e.getMessage());
 		}
 	}
+
 	//执行点击
 	@Override
 	public boolean performItemClick(View view, int position, long id) {
@@ -114,7 +128,7 @@ class WrapperViewList extends ListView {
 		} else {
 			super.dispatchDraw(canvas);
 		}
-		mLifeCycleListener.onDispatchDrawOccurred(canvas);
+//		mLifeCycleListener.onDispatchDrawOccurred(canvas);
 	}
 
 	void setLifeCycleListener(LifeCycleListener lifeCycleListener) {
