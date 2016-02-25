@@ -13,6 +13,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         wrapperViewList = (WrapperViewList) findViewById(R.id.list);
         InitialAdapter mAdapter = new InitialAdapter(this);
+        getResources().getStringArray(R.array.countries);
         wrapperViewList.setAdapter(mAdapter);
     }
 }
