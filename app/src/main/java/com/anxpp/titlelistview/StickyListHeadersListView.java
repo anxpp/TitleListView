@@ -3,18 +3,15 @@ package com.anxpp.titlelistview;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.content.res.TypedArray;
 import android.database.DataSetObserver;
 import android.graphics.Canvas;
 import android.os.Build;
 import android.os.Parcelable;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
-import android.widget.ListView;
 import android.widget.SectionIndexer;
 
 import com.anxpp.titlelistview.WrapperViewList.LifeCycleListener;
@@ -46,11 +43,7 @@ public class StickyListHeadersListView extends FrameLayout {
     /* --- 成员 --- */
     private AdapterWrapper mAdapter;
 
-    /* --- 设置 --- */
-    //是否固定到顶部
-    private boolean mAreHeadersSticky = true;
     private boolean mClippingToPadding = true;
-    private boolean mIsDrawingListUnderStickyHeader = true;
     private int mPaddingLeft = 0;
     private int mPaddingTop = 0;
     private int mPaddingRight = 0;
@@ -63,7 +56,7 @@ public class StickyListHeadersListView extends FrameLayout {
     }
 
     public StickyListHeadersListView(Context context, AttributeSet attrs) {
-        this(context, attrs, R.attr.stickyListHeadersListViewStyle);
+        this(context, attrs, 0);
     }
 
     public StickyListHeadersListView(Context context, AttributeSet attrs, int defStyle) {
@@ -71,92 +64,7 @@ public class StickyListHeadersListView extends FrameLayout {
 
         // 初始化封装的列表视图
         wrapperViewList = new WrapperViewList(context);
-
-        if (attrs != null) {
-            TypedArray a = context.getTheme().obtainStyledAttributes(attrs,R.styleable.StickyListHeadersListView, defStyle, 0);
-
-            try {
-                // -- 配置的视图属性 --
-                int padding = a.getDimensionPixelSize(R.styleable.StickyListHeadersListView_android_padding, 0);
-                mPaddingLeft = a.getDimensionPixelSize(R.styleable.StickyListHeadersListView_android_paddingLeft, padding);
-                mPaddingTop = a.getDimensionPixelSize(R.styleable.StickyListHeadersListView_android_paddingTop, padding);
-                mPaddingRight = a.getDimensionPixelSize(R.styleable.StickyListHeadersListView_android_paddingRight, padding);
-                mPaddingBottom = a.getDimensionPixelSize(R.styleable.StickyListHeadersListView_android_paddingBottom, padding);
-
-                setPadding(mPaddingLeft, mPaddingTop, mPaddingRight, mPaddingBottom);
-
-                // Set clip to padding on the list and reset value to default on
-                // wrapper
-                mClippingToPadding = a.getBoolean(R.styleable.StickyListHeadersListView_android_clipToPadding, true);
-                super.setClipToPadding(true);
-                wrapperViewList.setClipToPadding(mClippingToPadding);
-
-                // 滚动条
-                final int scrollBars = a.getInt(R.styleable.StickyListHeadersListView_android_scrollbars, 0x00000200);
-                wrapperViewList.setVerticalScrollBarEnabled((scrollBars & 0x00000200) != 0);
-                wrapperViewList.setHorizontalScrollBarEnabled((scrollBars & 0x00000100) != 0);
-
-                // overscroll
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
-                    wrapperViewList.setOverScrollMode(a.getInt(R.styleable.StickyListHeadersListView_android_overScrollMode, 0));
-                }
-
-                // -- ListView的属性 --
-                wrapperViewList.setFadingEdgeLength(a.getDimensionPixelSize(R.styleable.StickyListHeadersListView_android_fadingEdgeLength,
-                        wrapperViewList.getVerticalFadingEdgeLength()));
-                final int fadingEdge = a.getInt(R.styleable.StickyListHeadersListView_android_requiresFadingEdge, 0);
-                if (fadingEdge == 0x00001000) {
-                    wrapperViewList.setVerticalFadingEdgeEnabled(false);
-                    wrapperViewList.setHorizontalFadingEdgeEnabled(true);
-                } else if (fadingEdge == 0x00002000) {
-                    wrapperViewList.setVerticalFadingEdgeEnabled(true);
-                    wrapperViewList.setHorizontalFadingEdgeEnabled(false);
-                } else {
-                    wrapperViewList.setVerticalFadingEdgeEnabled(false);
-                    wrapperViewList.setHorizontalFadingEdgeEnabled(false);
-                }
-                wrapperViewList.setCacheColorHint(a
-                        .getColor(R.styleable.StickyListHeadersListView_android_cacheColorHint, wrapperViewList.getCacheColorHint()));
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                    wrapperViewList.setChoiceMode(a.getInt(R.styleable.StickyListHeadersListView_android_choiceMode,
-                            wrapperViewList.getChoiceMode()));
-                }
-                wrapperViewList.setDrawSelectorOnTop(a.getBoolean(R.styleable.StickyListHeadersListView_android_drawSelectorOnTop, false));
-                wrapperViewList.setFastScrollEnabled(a.getBoolean(R.styleable.StickyListHeadersListView_android_fastScrollEnabled,
-                        wrapperViewList.isFastScrollEnabled()));
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                    wrapperViewList.setFastScrollAlwaysVisible(a.getBoolean(
-                            R.styleable.StickyListHeadersListView_android_fastScrollAlwaysVisible,
-                            wrapperViewList.isFastScrollAlwaysVisible()));
-                }
-
-                //设置滚动条无边框
-//                wrapperViewList.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
-//                wrapperViewList.setSmoothScrollbarEnabled(false);
-
-                if (a.hasValue(R.styleable.StickyListHeadersListView_android_listSelector)) {
-                    wrapperViewList.setSelector(a.getDrawable(R.styleable.StickyListHeadersListView_android_listSelector));
-                }
-
-                wrapperViewList.setScrollingCacheEnabled(a.getBoolean(R.styleable.StickyListHeadersListView_android_scrollingCache,
-                        wrapperViewList.isScrollingCacheEnabled()));
-                
-                wrapperViewList.setStackFromBottom(a.getBoolean(R.styleable.StickyListHeadersListView_android_stackFromBottom, false));
-
-                wrapperViewList.setTranscriptMode(a.getInt(R.styleable.StickyListHeadersListView_android_transcriptMode,
-                        ListView.TRANSCRIPT_MODE_DISABLED));
-
-                // -- StickyListHeaders attributes --
-                mAreHeadersSticky = a.getBoolean(R.styleable.StickyListHeadersListView_hasStickyHeaders, true);
-                mIsDrawingListUnderStickyHeader = a.getBoolean(R.styleable.StickyListHeadersListView_isDrawingListUnderStickyHeader, true);
-            } finally {
-                a.recycle();
-            }
-        }
-
-        // attach some listeners to the wrapped list
         wrapperViewList.setLifeCycleListener(new WrapperViewListLifeCycleListener());
-
         addView(wrapperViewList);
     }
 
@@ -216,7 +124,6 @@ public class StickyListHeadersListView extends FrameLayout {
             mHeaderId = null;
             mHeaderPosition = null;
             mHeaderOffset = null;
-
             // reset the top clipping length
             wrapperViewList.setTopClippingLength(0);
             updateHeaderVisibilities();
@@ -225,7 +132,7 @@ public class StickyListHeadersListView extends FrameLayout {
 
     private void updateOrClearHeader(int firstVisiblePosition) {
         final int adapterCount = mAdapter == null ? 0 : mAdapter.getCount();
-        if (adapterCount == 0 || !mAreHeadersSticky) {
+        if (adapterCount == 0) {
             return;
         }
 
@@ -296,10 +203,7 @@ public class StickyListHeadersListView extends FrameLayout {
 
         setHeaderOffet(headerOffset);
 
-        if (!mIsDrawingListUnderStickyHeader) {
-            wrapperViewList.setTopClippingLength(mHeader.getMeasuredHeight()
-                    + mHeaderOffset);
-        }
+        wrapperViewList.setTopClippingLength(mHeader.getMeasuredHeight() + mHeaderOffset);
 
         updateHeaderVisibilities();
     }
@@ -363,17 +267,14 @@ public class StickyListHeadersListView extends FrameLayout {
     }
 
     private class AdapterWrapperDataSetObserver extends DataSetObserver {
-
         @Override
         public void onChanged() {
             clearHeader();
         }
-
         @Override
         public void onInvalidated() {
             clearHeader();
         }
-
     }
 
     //生命周期监听
@@ -403,22 +304,7 @@ public class StickyListHeadersListView extends FrameLayout {
         return mStickyHeaderTopOffset + (mClippingToPadding ? mPaddingTop : 0);
     }
 
-    /**
-     * Use the method with extreme caution!! Changing any values on the
-     * underlying ListView might break everything.
-     *
-     * @return the ListView backing this view.
-     */
-    private boolean requireSdkVersion(int versionCode) {
-        if (Build.VERSION.SDK_INT < versionCode) {
-            Log.e("StickyListHeaders", "Api lvl must be at least "+versionCode+" to call this method");
-            return false;
-        }
-        return true;
-    }
-
 	/* ---------- 下面是ListView的代理方法 ---------- */
-    //没有用到的已经注释掉了，若要使用，取消注释即可！
     public void setAdapter(StickyListHeadersAdapter adapter) {
         if (adapter == null) {
             if (mAdapter != null) {
@@ -453,24 +339,6 @@ public class StickyListHeadersListView extends FrameLayout {
             });
         } else {
             wrapperViewList.setOnTouchListener(null);
-        }
-    }
-
-    @Override
-    @TargetApi(Build.VERSION_CODES.GINGERBREAD)
-    public int getOverScrollMode() {
-        if (requireSdkVersion(Build.VERSION_CODES.GINGERBREAD)) {
-            return wrapperViewList.getOverScrollMode();
-        }
-        return 0;
-    }
-    @Override
-    @TargetApi(Build.VERSION_CODES.GINGERBREAD)
-    public void setOverScrollMode(int mode) {
-        if (requireSdkVersion(Build.VERSION_CODES.GINGERBREAD)) {
-            if (wrapperViewList != null) {
-                wrapperViewList.setOverScrollMode(mode);
-            }
         }
     }
 

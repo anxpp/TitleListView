@@ -3,8 +3,7 @@ package com.anxpp.titlelistview;
 import android.content.Context;
 import android.widget.SectionIndexer;
 
-class SectionIndexerAdapterWrapper extends
-		AdapterWrapper implements SectionIndexer {
+class SectionIndexerAdapterWrapper extends AdapterWrapper implements SectionIndexer {
 	
 	SectionIndexer mSectionIndexerDelegate;
 
